@@ -40,25 +40,16 @@ pipeline {
                 """
             }
         }
-
-        stage('Publicar vulnerabilidades en dashboard') {
-            steps {
-                recordIssues(tools: [
-                    sarif(pattern: "${GRYPE_SARIF}")
-                ])
-            }
-        }
     }
 
     post {
         always {
             archiveArtifacts artifacts: '*.json', fingerprint: true
+            recordIssues(tools: [ sarif(pattern: 'grype-report.sarif') ])
         }
-
         failure {
             echo '❌ El análisis encontró vulnerabilidades graves.'
         }
-
         success {
             echo '✅ Análisis completado sin vulnerabilidades críticas.'
         }
