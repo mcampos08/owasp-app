@@ -23,7 +23,7 @@ pipeline {
 
                         ${dcHome}/bin/dependency-check.sh \
                           --project "owasp-app" \
-                          --scan .
+                          --scan . \
                           --format HTML \
                           --out reports/dependency-check \
                           --enableRetired \
