@@ -17,13 +17,13 @@ pipeline {
 
         stage('Instalar dependencias PHP') {
             steps {
-                sh 'cd $WORKSPACE && syft . -o json > sbom.json'
+                sh 'composer install --no-interaction --prefer-dist'
             }
         }
 
         stage('Generar SBOM con Syft') {
             steps {
-                sh "syft dir:. -o json > ${SYFT_OUTPUT}"
+                syft . -o json --source-name owasp-app > ${SYFT_OUTPUT}
             }
         }
 
