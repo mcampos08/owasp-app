@@ -17,7 +17,7 @@ pipeline {
 
         stage('Instalar dependencias PHP') {
             steps {
-                sh 'composer install --no-interaction --prefer-dist'
+                sh 'cd $WORKSPACE && syft . -o json > sbom.json'
             }
         }
 
