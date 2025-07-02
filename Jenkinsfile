@@ -23,7 +23,9 @@ pipeline {
 
         stage('Generar SBOM con Syft') {
             steps {
-                syft . -o json --source-name owasp-app > ${SYFT_OUTPUT}
+		sh """
+                    syft . -o json --source-name owasp-app > ${SYFT_OUTPUT}
+		"""
             }
         }
 
