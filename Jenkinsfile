@@ -5,6 +5,7 @@ pipeline {
         SYFT_OUTPUT = 'sbom.json'
         GRYPE_REPORT = 'grype-report.json'
         GRYPE_SARIF = 'grype-report.sarif'
+        BUILD_SHOULD_FAIL = 'false'
     }
 
     stages {
@@ -35,7 +36,7 @@ pipeline {
                     grype sbom:${SYFT_OUTPUT} -o table --fail-on high
                     if [ \$? -ne 0 ]; then
                         echo "❌ Vulnerabilidades altas o críticas encontradas"
-                        exit 1
+                        echo "BUILD_SHOULD_FAIL=true" > grype.fail
                     fi
                 """
             }
@@ -46,12 +47,16 @@ pipeline {
         always {
             archiveArtifacts artifacts: '*.json', fingerprint: true
             recordIssues(tools: [ sarif(pattern: 'grype-report.sarif') ])
-        }
-        failure {
-            echo '❌ El análisis encontró vulnerabilidades graves.'
-        }
-        success {
-            echo '✅ Análisis completado sin vulnerabilidades críticas.'
+
+            // Revisar si el análisis encontró vulnerabilidades graves
+            script {
+                if (fileExists('grype.fail')) {
+                    currentBuild.result = 'FAILURE'
+                    echo '⚠️ El análisis encontró vulnerabilidades críticas. Build marcado como FAILURE.'
+                } else {
+                    echo '✅ Sin vulnerabilidades críticas detectadas.'
+                }
+            }
         }
     }
 }
